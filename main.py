@@ -13,17 +13,6 @@ pygame.display.set_icon(icon)
 bg = pygame.image.load('background.png')
 
 
-
-
-
-
-def player(x,y):
-    screen.blit(playerImg,(x, y))
-
-def enemy(x,y):
-    screen.blit(enemyImg,(x,y))
-
-
 #Speeds
 normalXspeed= 0
 normalYspeed= 0
@@ -55,6 +44,7 @@ class Enemy:
     Xspeed= 2
     Yspeed= 0
 
+
 bullets = []
 enemies = []
 enemy_lvl = 0
@@ -68,10 +58,12 @@ running = True
 while running:
     screen.fill((100, 100, 100))           #Colour
     screen.blit(bg, (0, 0))                #background
-    text = font.render(f'Score: {score}', True, (255, 255, 255), (0, 0, 0))
+
+    text = font.render(f'Score: {score}', True, (255, 255, 255), (0, 0, 0))   #ScoreText
     textRect = text.get_rect()
     textRect.center = (30, 10)
     screen.blit(text, textRect)
+
     for event in pygame.event.get():
         if event.type==pygame.QUIT:
             running=False
@@ -88,9 +80,10 @@ while running:
             if event.key==pygame.K_LEFT or event.key==pygame.K_RIGHT:
                 normalXspeed= 0
 
-        if len(enemies) == 0:
-            for i in range(enemy_lvl := enemy_lvl+1):
-                enemies.append(Enemy(random.randint(10,700), random.randint(0,200)))
+    #new enemies
+    if len(enemies) == 0:
+        for i in range(enemy_lvl := enemy_lvl+1):
+            enemies.append(Enemy(random.randint(10,700), random.randint(0,200)))
         
 
     #Player movement
