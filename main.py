@@ -12,19 +12,9 @@ icon = pygame.image.load('trophy.png')
 pygame.display.set_icon(icon)
 bg = pygame.image.load('background.png')
 
-#Player
-playerImg= pygame.image.load('aircraft.png')
-playerX= 400
-playerY= 500
-normalXspeed= 0
-normalYspeed= 0
 
-#enemy
-enemyImg= pygame.image.load('enemy.png')
-enemyX= random.randint(10,700)
-enemyY= random.randint(0,200)
-enemyXspeed= 2
-enemyYspeed= 0
+
+
 
 
 def player(x,y):
@@ -34,30 +24,48 @@ def enemy(x,y):
     screen.blit(enemyImg,(x,y))
 
 
-#bulletSpeeds
+#Speeds
+normalXspeed= 0
+normalYspeed= 0
+
 bulletXspeed= 0
 bulletYspeed= 6
 
 
-class bullet:
-    Img= pygame.image.load('bullet.png')
+class Bullet:
+    Img = pygame.image.load('bullet.png')
 
-    def __init__(self, playerX, playerY):
-        self.bulletX= playerX-2
-        self.bulletY= playerY
-    def __del__(self):
-        print("deleted a bullet")
+    def __init__(self, X, Y):
+        self.X = X-2
+        self.Y = Y
+
+
+class Player:
+    Img = pygame.image.load('aircraft.png')
+
+    X = 400
+    Y = 500
     
+
+class Enemy:
+    Img = pygame.image.load('enemy.png')
+    def __init__(self, X, Y):
+        self.X = X
+        self.Y = Y
+    Xspeed= 2
+    Yspeed= 0
+
+bullets = []
+enemies = []
+enemy_lvl = 0
 score = 0
 font = pygame.font.Font('freesansbold.ttf', 10)
 
 
-
 running = True
-bullets = []
-frame = 0
+
+
 while running:
-    frame+=1
     screen.fill((100, 100, 100))           #Colour
     screen.blit(bg, (0, 0))                #background
     text = font.render(f'Score: {score}', True, (255, 255, 255), (0, 0, 0))
@@ -75,50 +83,58 @@ while running:
             if event.key==pygame.K_RIGHT:
                normalXspeed= 2
             if event.key==pygame.K_SPACE:
-                bullets.append(bullet(playerX, playerY))
+                bullets.append(Bullet(Player.X, Player.Y))
         if event.type==pygame.KEYUP:
             if event.key==pygame.K_LEFT or event.key==pygame.K_RIGHT:
                 normalXspeed= 0
-        
-            
-            
-        
+
+        if len(enemies) == 0:
+            for i in range(enemy_lvl := enemy_lvl+1):
+                enemies.append(Enemy(random.randint(10,700), random.randint(0,200)))
         
 
     #Player movement
-    playerY+= normalYspeed
-    playerX+= normalXspeed
-    if playerX<= 0:
-        playerX=0
-    elif playerX>=778:
-        playerX=778
-    elif playerY<=32:
-        playerY=32
-    elif playerY>=568:    
-        playerY=568
+    Player.Y+= normalYspeed
+    Player.X+= normalXspeed
+    if Player.X<= 0:
+        Player.X=0
+    elif Player.X>=778:
+        Player.X=778
+    elif Player.Y<=32:
+        Player.Y=32
+    elif Player.Y>=568:    
+        Player.Y=568
+
+
+    screen.blit(Player.Img, (Player.X, Player.Y))
+
 
     #Enemy movement
-    enemyX+=enemyXspeed
-    if enemyX<= 0:
-        enemyXspeed= random.randrange(1,2)
-    elif enemyX>=768:
-        enemyXspeed= random.randrange(-2,-1)
-    elif enemyY>=32:
-        enemyYspeed=0.3
-    enemyY+=enemyYspeed
+    for i in enemies:
+        i.X+=i.Xspeed
+        if i.X<= 0:
+            i.Xspeed= random.randrange(1,2)
+        elif i.X>=768:
+            i.Xspeed= random.randrange(-2,-1)
+        elif i.Y>=32:
+            i.Yspeed=0.3
+        i.Y+=i.Yspeed
+        screen.blit(i.Img, (i.X, i.Y))
+
 
     #Bullet movement
     for i in bullets:
-        i.bulletY -= bulletYspeed
-        screen.blit(i.Img, (i.bulletX, i.bulletY))
-        if i.bulletY<0:
+        i.Y -= bulletYspeed
+        screen.blit(i.Img, (i.X, i.Y))
+        if i.Y<0:
             del bullets[bullets.index(i)]
-        if (i.bulletY > enemyY-30 and i.bulletY < enemyY+30) and (i.bulletX > enemyX-30 and i.bulletX < enemyX+30):
-            del bullets[bullets.index(i)]
-            score+=100
-            print("bullet shot on enemy")
-    player(playerX,playerY)
-    enemy(enemyX,enemyY)
+        for j in enemies:
+            if (i.Y > j.Y-30 and i.Y < j.Y+30) and (i.X > j.X-30 and i.X < j.X+30):
+                del bullets[bullets.index(i)]
+                del enemies[enemies.index(j)]
+                score+=100
+                print("bullet shot on enemy")
+    
     pygame.display.update()
 
     
